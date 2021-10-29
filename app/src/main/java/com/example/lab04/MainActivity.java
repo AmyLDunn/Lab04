@@ -49,13 +49,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void newProduct(View view){
         MyDBHandler database = new MyDBHandler(this);
-        double price = Double.parseDouble(productPrice.getText().toString());
-        Product product = new Product(productName.getText().toString(), price);
-        database.addProduct(product);
-        productName.setText("");
-        productPrice.setText("");
-        listItems.clear();
-        viewData();
+
+        productID.setText("");
+
+        try {
+            double price = Double.parseDouble(productPrice.getText().toString());
+            Product product = new Product(productName.getText().toString(), price);
+            database.addProduct(product);
+            productName.setText("");
+            productPrice.setText("");
+            listItems.clear();
+            viewData();
+        } catch (NumberFormatException e) {
+            productID.setText("Make sure you enter a real price!");
+        }
     }
 
     public void lookupProduct(View view){
@@ -73,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
         MyDBHandler database = new MyDBHandler(this);
         boolean result = database.deleteProduct(productName.getText().toString());
         listItems.clear();
-        viewData();
         if (result){
             productID.setText("Record Deleted");
             productName.setText("");
@@ -81,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             productID.setText("No Match Found");
         }
+        viewData();
     }
 
     private void viewData(){
@@ -88,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = database.viewData();
         if ( cursor.getCount() == 0){
             Toast.makeText(this, "No data to show", Toast.LENGTH_SHORT).show();
-        } else {
-            while (cursor.moveToNext()){
-                listItems.add(cursor.getString(1));
-            }
-            adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
-            productList.setAdapter(adapter);
         }
+
+        while (cursor.moveToNext()) {
+            listItems.add(cursor.getString(1));
+        }
+        adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, listItems);
+        productList.setAdapter(adapter);
     }
 }
